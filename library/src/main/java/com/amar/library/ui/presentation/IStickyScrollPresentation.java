@@ -10,7 +10,7 @@ public interface IStickyScrollPresentation {
     void stickHeader(int translationY);
     void stickFooter(int translationY);
 
-    void initHeaderView(int id);
+    void initHeaderView(int headerId, int headerContainerId);
     void initFooterView(int id);
 
     int getCurrentScrollYPos();

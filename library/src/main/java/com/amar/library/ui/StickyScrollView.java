@@ -17,11 +17,15 @@ import com.amar.library.ui.presenter.StickyScrollPresenter;
 import com.amar.library.provider.ScreenInfoProvider;
 import com.amar.library.provider.interfaces.IScreenInfoProvider;
 
+import javax.annotation.Nullable;
+
 public class StickyScrollView extends ScrollView implements IStickyScrollPresentation {
     private IScrollViewListener scrollViewListener;
 
     private View stickyFooterView;
     private View stickyHeaderView;
+    @Nullable
+    private View stickyHeaderContainerView;
 
     private static final String SCROLL_STATE = "scroll_state";
     private static final String SUPER_STATE = "super_state";
@@ -44,7 +48,7 @@ public class StickyScrollView extends ScrollView implements IStickyScrollPresent
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                mStickyScrollPresenter.onGlobalLayoutChange(R.styleable.StickyScrollView_stickyHeader, R.styleable.StickyScrollView_stickyFooter);
+                mStickyScrollPresenter.onGlobalLayoutChange(R.styleable.StickyScrollView_stickyHeader, R.styleable.StickyScrollView_stickyHeaderContainer, R.styleable.StickyScrollView_stickyFooter);
                 getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
@@ -58,7 +62,7 @@ public class StickyScrollView extends ScrollView implements IStickyScrollPresent
         }
 
         if (stickyHeaderView != null) {
-            mStickyScrollPresenter.recomputeHeaderLocation(stickyHeaderView.getTop());
+            mStickyScrollPresenter.recomputeHeaderLocation(getTopOfStickyHeaderView());
         }
     }
 
@@ -71,9 +75,19 @@ public class StickyScrollView extends ScrollView implements IStickyScrollPresent
     }
 
     @Override
-    public void initHeaderView(int id) {
-        stickyHeaderView = findViewById(id);
-        mStickyScrollPresenter.initStickyHeader(stickyHeaderView.getTop());
+    public void initHeaderView(int headerId, int containerId) {
+        stickyHeaderView = findViewById(headerId);
+        stickyHeaderContainerView = findViewById(containerId);
+        mStickyScrollPresenter.initStickyHeader(getTopOfStickyHeaderView());
+    }
+
+    private int getTopOfStickyHeaderView() {
+        int top = stickyHeaderView.getTop();
+        if(stickyHeaderContainerView != null) {
+            top = stickyHeaderContainerView.getTop();
+        }
+
+        return top;
     }
 
     @Override
@@ -111,6 +125,7 @@ public class StickyScrollView extends ScrollView implements IStickyScrollPresent
             stickyFooterView.setTranslationY(translationY);
         }
     }
+
 
     @Override
     public int getCurrentScrollYPos() {

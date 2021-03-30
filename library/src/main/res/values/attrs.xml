@@ -3,5 +3,6 @@
     <declare-styleable name="StickyScrollView">
         <attr name="stickyFooter" format="reference" />
         <attr name="stickyHeader" format="reference" />
+        <attr name="stickyHeaderContainer" format="reference"/>
     </declare-styleable>
 </resources>

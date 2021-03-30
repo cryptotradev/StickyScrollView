@@ -32,10 +32,11 @@ public class StickyScrollPresenter {
         mStickyScrollPresentation = stickyScrollPresentation;
     }
 
-    public void onGlobalLayoutChange(@StyleableRes int headerRes, @StyleableRes int footerRes) {
+    public void onGlobalLayoutChange(@StyleableRes int headerRes, @StyleableRes int headerContainerRes, @StyleableRes int footerRes) {
         int headerId = mTypedArrayResourceProvider.getResourceId(headerRes);
+        int headerContainerId = mTypedArrayResourceProvider.getResourceId(headerContainerRes);
         if (headerId != 0) {
-            mStickyScrollPresentation.initHeaderView(headerId);
+            mStickyScrollPresentation.initHeaderView(headerId, headerContainerId);
         }
         int footerId = mTypedArrayResourceProvider.getResourceId(footerRes);
         if (footerId != 0) {

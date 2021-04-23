@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ScrollView
@@ -23,6 +24,7 @@ class StickyScrollView @JvmOverloads constructor(
 ) : ScrollView(context, attrs, defStyle), IStickyScrollPresentation {
     var scrollViewListener: IScrollViewListener? = null
     private var stickyFooterView: View? = null
+    private var stickyHeaderTopView: View? = null
     private var stickyHeaderView: View? = null
     private var stickyHeaderContainerView: View? = null
     private val mStickyScrollPresenter: StickyScrollPresenter
@@ -34,6 +36,10 @@ class StickyScrollView @JvmOverloads constructor(
         if (stickyHeaderView != null) {
             mStickyScrollPresenter.recomputeHeaderLocation(topOfStickyHeaderView)
         }
+
+        if(stickyHeaderTopView != null) {
+            mStickyScrollPresenter.recomputeHeaderLocation(topOfStickyHeaderTopView)
+        }
     }
 
     private fun getRelativeTop(myView: View): Int {
@@ -44,10 +50,12 @@ class StickyScrollView @JvmOverloads constructor(
         }
     }
 
-    override fun initHeaderView(headerId: Int, containerId: Int) {
+    override fun initHeaderView(headerTopId: Int, headerId: Int, headerContainerId: Int) {
         stickyHeaderView = findViewById(headerId)
-        stickyHeaderContainerView = findViewById(containerId)
+        stickyHeaderContainerView = findViewById(headerContainerId)
+        stickyHeaderTopView = findViewById(headerTopId)
         mStickyScrollPresenter.initStickyHeader(topOfStickyHeaderView)
+        mStickyScrollPresenter.initStickyHeaderTop(topOfStickyHeaderTopView)
     }
 
     private val topOfStickyHeaderView: Int
@@ -59,15 +67,29 @@ class StickyScrollView @JvmOverloads constructor(
             return top
         }
 
+    private val topOfStickyHeaderTopView: Int
+        get() {
+            return stickyHeaderTopView?.top ?: 0
+        }
+
     override fun initFooterView(id: Int) {
         stickyFooterView = findViewById(id)
         //mStickyScrollPresenter.initStickyFooter(stickyFooterView.getMeasuredHeight(), getRelativeTop(stickyFooterView));
     }
 
     override fun freeHeader() {
+        Log.i(LOG_TAG, "freeHeader()")
         if (stickyHeaderView != null) {
-            stickyHeaderView!!.translationY = 0f
+            stickyHeaderView?.translationY = 0f//translationY
             PropertySetter.setTranslationZ(stickyHeaderView, 0f)
+        }
+    }
+
+    override fun freeTopHeader() {
+        Log.i(LOG_TAG, "freeTopHeader()")
+        stickyHeaderTopView?.let {
+            translationY = 0f
+            PropertySetter.setTranslationZ(it, 0f)
         }
     }
 
@@ -78,9 +100,23 @@ class StickyScrollView @JvmOverloads constructor(
     }
 
     override fun stickHeader(translationY: Int) {
+        Log.i(LOG_TAG, "stickHeader(), $translationY")
         if (stickyHeaderView != null) {
-            stickyHeaderView!!.translationY = translationY.toFloat()
+            val summedTranslationY = if(stickyHeaderTopView != null) {
+                stickyHeaderTopView!!.height.toFloat() + translationY
+            } else {
+                translationY
+            }
+            stickyHeaderView!!.translationY = summedTranslationY.toFloat()
             PropertySetter.setTranslationZ(stickyHeaderView, 1f)
+        }
+    }
+
+    override fun stickTopHeader(translationY: Int) {
+        Log.i(LOG_TAG, "stickTopHeader(), $translationY")
+        if (stickyHeaderTopView != null) {
+            stickyHeaderTopView!!.translationY = translationY.toFloat()
+            PropertySetter.setTranslationZ(stickyHeaderTopView, 1f)
         }
     }
 
@@ -102,7 +138,6 @@ class StickyScrollView @JvmOverloads constructor(
         }
     }
 
-    //mStickyScrollPresenter.isFooterSticky();
     val isFooterSticky: Boolean
         get() = false //mStickyScrollPresenter.isFooterSticky();
     val isHeaderSticky: Boolean
@@ -133,6 +168,7 @@ class StickyScrollView @JvmOverloads constructor(
     }
 
     companion object {
+        private const val LOG_TAG = "StickyScrollView"
         private const val SCROLL_STATE = "scroll_state"
         private const val SUPER_STATE = "super_state"
     }
@@ -145,6 +181,7 @@ class StickyScrollView @JvmOverloads constructor(
         viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 mStickyScrollPresenter.onGlobalLayoutChange(
+                    R.styleable.StickyScrollView_stickyHeaderTop,
                     R.styleable.StickyScrollView_stickyHeader,
                     R.styleable.StickyScrollView_stickyHeaderContainer,
                     R.styleable.StickyScrollView_stickyFooter

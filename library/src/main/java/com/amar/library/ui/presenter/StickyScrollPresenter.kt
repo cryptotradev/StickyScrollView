@@ -1,9 +1,11 @@
 package com.amar.library.ui.presenter
 
+import android.util.Log
 import androidx.annotation.StyleableRes
 import com.amar.library.provider.interfaces.IResourceProvider
 import com.amar.library.provider.interfaces.IScreenInfoProvider
 import com.amar.library.ui.presentation.IStickyScrollPresentation
+import java.lang.Integer.min
 
 /**
  * Created by Amar Jain on 17/03/17.
@@ -20,21 +22,27 @@ class StickyScrollPresenter(
 //    private var mStickyFooterInitialTranslation = 0
 //    private var mStickyFooterInitialLocation = 0
     private var mStickyHeaderInitialLocation = 0
+    private var mStickyTopHeaderInitialLocation = 0
 //    var isFooterSticky = false
 //        private set
     var isHeaderSticky = false
         private set
 
+    var isTopHeaderSticky = false
+        private set
+
     var mScrolled = false
     fun onGlobalLayoutChange(
+        @StyleableRes headerTop: Int,
         @StyleableRes headerRes: Int,
         @StyleableRes headerContainerRes: Int,
         @StyleableRes footerRes: Int
     ) {
+        val headerTopId = mTypedArrayResourceProvider.getResourceId(headerTop)
         val headerId = mTypedArrayResourceProvider.getResourceId(headerRes)
         val headerContainerId = mTypedArrayResourceProvider.getResourceId(headerContainerRes)
         if (headerId != 0) {
-            mStickyScrollPresentation.initHeaderView(headerId, headerContainerId)
+            mStickyScrollPresentation.initHeaderView(headerTopId, headerId, headerContainerId)
         }
 //        val footerId = mTypedArrayResourceProvider.getResourceId(footerRes)
 //        if (footerId != 0) {
@@ -55,7 +63,14 @@ class StickyScrollPresenter(
 //    }
 
     fun initStickyHeader(headerTop: Int) {
+        Log.i(LOG_TAG, "initStickyHeader() $headerTop")
         mStickyHeaderInitialLocation = headerTop
+    }
+
+    fun initStickyHeaderTop(headerTop: Int) {
+        Log.i(LOG_TAG, "initStickyHeaderTop() $headerTop")
+
+        mStickyTopHeaderInitialLocation = headerTop
     }
 
     fun onScroll(scrollY: Int) {
@@ -75,12 +90,24 @@ class StickyScrollPresenter(
 //    }
 
     private fun handleHeaderStickiness(scrollY: Int) {
-        if (scrollY > mStickyHeaderInitialLocation) {
+        if(mStickyTopHeaderInitialLocation == 0) {
+            mStickyTopHeaderInitialLocation = mStickyHeaderInitialLocation
+        }
+
+        if (scrollY > Math.min(mStickyHeaderInitialLocation, mStickyTopHeaderInitialLocation)) {
             mStickyScrollPresentation.stickHeader(scrollY - mStickyHeaderInitialLocation)
             isHeaderSticky = true
         } else {
             mStickyScrollPresentation.freeHeader()
             isHeaderSticky = false
+        }
+
+        if(scrollY > mStickyTopHeaderInitialLocation) {
+            mStickyScrollPresentation.stickTopHeader(scrollY - mStickyTopHeaderInitialLocation)
+            isTopHeaderSticky = true
+        } else {
+            mStickyScrollPresentation.freeTopHeader()
+            isTopHeaderSticky = false
         }
     }
 
@@ -97,6 +124,10 @@ class StickyScrollPresenter(
     fun recomputeHeaderLocation(headerTop: Int) {
         initStickyHeader(headerTop)
         handleHeaderStickiness(mStickyScrollPresentation.currentScrollYPos)
+    }
+
+    companion object {
+        private const val LOG_TAG = "StickyScrollPresenter"
     }
 
     init {

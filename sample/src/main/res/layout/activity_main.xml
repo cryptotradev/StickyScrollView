@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:stickyFooter="@+id/buttons"
-    app:stickyHeader="@+id/title"
+    app:stickyHeaderTop="@id/title"
+    app:stickyHeader="@+id/other_product"
     tools:context="com.amar.sample.MainActivity">
 
     <LinearLayout

@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ScrollView
+import androidx.core.widget.NestedScrollView
 import com.amar.library.R
 import com.amar.library.provider.ResourceProvider
 import com.amar.library.provider.ScreenInfoProvider
@@ -18,10 +19,10 @@ import com.amar.library.ui.presentation.IStickyScrollPresentation
 import com.amar.library.ui.presenter.StickyScrollPresenter
 
 class StickyScrollView @JvmOverloads constructor(
-    context: Context?,
+    context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
-) : ScrollView(context, attrs, defStyle), IStickyScrollPresentation {
+) : NestedScrollView(context, attrs, defStyle), IStickyScrollPresentation {
     var scrollViewListener: IScrollViewListener? = null
     private var stickyFooterView: View? = null
     private var stickyHeaderTopView: View? = null

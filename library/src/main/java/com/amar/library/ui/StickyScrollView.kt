@@ -55,7 +55,9 @@ class StickyScrollView @JvmOverloads constructor(
         stickyHeaderContainerView = findViewById(headerContainerId)
         stickyHeaderTopView = findViewById(headerTopId)
         mStickyScrollPresenter.initStickyHeader(topOfStickyHeaderView)
-        mStickyScrollPresenter.initStickyHeaderTop(topOfStickyHeaderTopView)
+        if(stickyHeaderTopView != null) {
+            mStickyScrollPresenter.initStickyHeaderTop(topOfStickyHeaderTopView)
+        }
     }
 
     private val topOfStickyHeaderView: Int

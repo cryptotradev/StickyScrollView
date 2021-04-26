@@ -22,7 +22,7 @@ class StickyScrollPresenter(
 //    private var mStickyFooterInitialTranslation = 0
 //    private var mStickyFooterInitialLocation = 0
     private var mStickyHeaderInitialLocation = 0
-    private var mStickyTopHeaderInitialLocation = 0
+    private var mStickyTopHeaderInitialLocation: Int? = null
 //    var isFooterSticky = false
 //        private set
     var isHeaderSticky = false
@@ -90,11 +90,15 @@ class StickyScrollPresenter(
 //    }
 
     private fun handleHeaderStickiness(scrollY: Int) {
-        if(mStickyTopHeaderInitialLocation == 0) {
-            mStickyTopHeaderInitialLocation = mStickyHeaderInitialLocation
+        Log.i(LOG_TAG, "handleHeaderStickiness($scrollY). TopHeaderInitial: $mStickyTopHeaderInitialLocation, HeaderInitial: $mStickyHeaderInitialLocation")
+
+        val headerScrollBarrier = if(mStickyTopHeaderInitialLocation != null) {
+            mStickyTopHeaderInitialLocation!!
+        } else {
+            mStickyHeaderInitialLocation
         }
 
-        if (scrollY > Math.min(mStickyHeaderInitialLocation, mStickyTopHeaderInitialLocation)) {
+        if (scrollY > headerScrollBarrier) {
             mStickyScrollPresentation.stickHeader(scrollY - mStickyHeaderInitialLocation)
             isHeaderSticky = true
         } else {
@@ -102,12 +106,14 @@ class StickyScrollPresenter(
             isHeaderSticky = false
         }
 
-        if(scrollY > mStickyTopHeaderInitialLocation) {
-            mStickyScrollPresentation.stickTopHeader(scrollY - mStickyTopHeaderInitialLocation)
-            isTopHeaderSticky = true
-        } else {
-            mStickyScrollPresentation.freeTopHeader()
-            isTopHeaderSticky = false
+        mStickyTopHeaderInitialLocation?.let {
+            if(scrollY > it) {
+                mStickyScrollPresentation.stickTopHeader(scrollY - it)
+                isTopHeaderSticky = true
+            } else {
+                mStickyScrollPresentation.freeTopHeader()
+                isTopHeaderSticky = false
+            }
         }
     }
 

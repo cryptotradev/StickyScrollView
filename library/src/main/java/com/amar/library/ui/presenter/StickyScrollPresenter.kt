@@ -126,6 +126,11 @@ class StickyScrollPresenter(
         handleHeaderStickiness(mStickyScrollPresentation.currentScrollYPos)
     }
 
+    fun recomputeTopHeaderLocation(headerTop: Int) {
+        initStickyHeaderTop(headerTop)
+        handleHeaderStickiness(mStickyScrollPresentation.currentScrollYPos)
+    }
+
     companion object {
         private const val LOG_TAG = "StickyScrollPresenter"
     }

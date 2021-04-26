@@ -38,7 +38,7 @@ class StickyScrollView @JvmOverloads constructor(
         }
 
         if(stickyHeaderTopView != null) {
-            mStickyScrollPresenter.recomputeHeaderLocation(topOfStickyHeaderTopView)
+            mStickyScrollPresenter.recomputeTopHeaderLocation(topOfStickyHeaderTopView)
         }
     }
 
@@ -80,7 +80,7 @@ class StickyScrollView @JvmOverloads constructor(
     override fun freeHeader() {
         Log.i(LOG_TAG, "freeHeader()")
         if (stickyHeaderView != null) {
-            stickyHeaderView?.translationY = 0f//translationY
+            stickyHeaderView?.translationY = 0f
             PropertySetter.setTranslationZ(stickyHeaderView, 0f)
         }
     }
@@ -102,12 +102,12 @@ class StickyScrollView @JvmOverloads constructor(
     override fun stickHeader(translationY: Int) {
         Log.i(LOG_TAG, "stickHeader(), $translationY")
         if (stickyHeaderView != null) {
-//            val summedTranslationY = if(stickyHeaderTopView != null) {
-//                stickyHeaderTopView!!.height.toFloat() + translationY
-//            } else {
-//                translationY
-//            }
-            stickyHeaderView!!.translationY = translationY.toFloat()
+            val summedTranslationY = if(stickyHeaderTopView != null) {
+                stickyHeaderTopView!!.height.toFloat() + translationY
+            } else {
+                translationY
+            }
+            stickyHeaderView!!.translationY = summedTranslationY.toFloat()
             PropertySetter.setTranslationZ(stickyHeaderView, 1f)
         }
     }
